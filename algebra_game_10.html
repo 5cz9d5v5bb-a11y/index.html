@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مغامرة الجمع والطرح الجبري</title>
+<style>
+:root{--p:#51418b;--p2:#806bc2;--ink:#29243b;--muted:#716b80;--bg:#f5f2fc;--line:#e6e0f1;--green:#16845b;--red:#bd4545}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#f5f2fc,#eef5ff);font-family:Tahoma,Arial,sans-serif;color:var(--ink);padding:16px}
+main{max-width:760px;margin:0 auto}.hero{background:linear-gradient(120deg,#40316f,#806bc2);color:white;padding:22px;border-radius:22px;text-align:center;box-shadow:0 8px 22px #40316f30}
+h1{font-size:26px;margin:0 0 8px}.hero p{margin:6px 0}.student{font-size:14px;opacity:.95}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.stat,.card{background:white;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 4px 14px #40316f0b}.stat{text-align:center}.stat b{display:block;font-size:22px;color:var(--p)}
+.card{padding:20px}.muted{color:var(--muted);font-size:14px}.stage{display:inline-block;background:#f0ecfa;color:var(--p);border-radius:30px;padding:7px 13px;font-size:13px;font-weight:bold}
+.question{font-size:22px;line-height:1.7;margin:16px 0}.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{border:1px solid var(--line);background:#fff;border-radius:12px;padding:13px;font-size:17px;font-family:inherit;cursor:pointer;color:var(--ink)}.choice:active{transform:scale(.99)}.choice:disabled{cursor:default}.choice.correct{background:#e8f7ef;border-color:#8bc9a8}.choice.wrong{background:#fff0f0;border-color:#e2a0a0}
+.feedback{padding:13px;border-radius:12px;margin-top:14px;line-height:1.8;background:#f5f2fc;display:none}.feedback.good{display:block;background:#e8f7ef;color:#176342}.feedback.bad{display:block;background:#fff0f0;color:#8f3030}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}button.primary{background:var(--p);color:#fff;border:0;border-radius:12px;padding:12px 20px;font-size:16px;font-family:inherit;cursor:pointer}button.secondary{background:#eeeaf7;color:var(--p);border:0;border-radius:12px;padding:12px 18px;font-size:15px;font-family:inherit;cursor:pointer}
+.progress{height:9px;background:#eeeaf7;border-radius:20px;overflow:hidden;margin:14px 0}.bar{height:100%;background:var(--p2);width:0;transition:.25s}
+.center{text-align:center}.hidden{display:none}.certificate{border:3px double var(--p2);padding:22px;border-radius:18px;background:#fff;text-align:center;line-height:2}
+@media(max-width:480px){body{padding:10px}.hero{padding:18px}h1{font-size:21px}.question{font-size:19px}.choices{grid-template-columns:1fr}.stat{padding:10px}}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+<h1>مغامرة في عالم الجمع والطرح الجبري</h1>
+<p>رحلة تعليمية تفاعلية من 10 أسئلة</p>
+<div class="student">إعداد الطالبة: فاطمه فهد العيد | الصف: خامس/2</div>
+</section>
+<div class="stats">
+<div class="stat"><span class="muted">السؤال</span><b id="number">0 / 10</b></div>
+<div class="stat"><span class="muted">النقاط</span><b id="score">0</b></div>
+<div class="stat"><span class="muted">النجوم</span><b id="stars">☆☆☆☆☆</b></div>
+</div>
+<section id="start" class="card center">
+<h2>هل أنتِ مستعدة للتحدي؟</h2>
+<p class="muted">أجيبي عن الأسئلة العشرة، واحصلي على نقاطك وشهادة إنجاز في النهاية.</p>
+<button class="primary" onclick="begin()">ابدئي المغامرة</button>
+</section>
+<section id="game" class="card hidden">
+<span class="stage" id="stage">المحطة الأولى</span>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="question" id="question"></div>
+<div class="choices" id="choices"></div>
+<div class="feedback" id="feedback"></div>
+<div class="actions"><button class="primary hidden" id="next" onclick="nextQ()">السؤال التالي</button></div>
+</section>
+<section id="result" class="card hidden">
+<div class="certificate">
+<h2>🏆 شهادة إنجاز</h2>
+<p>تهانينا للطالبة</p>
+<h2>فاطمه فهد العيد</h2>
+<p>الصف: خامس/2</p>
+<p>أتممتِ مغامرة الجمع والطرح الجبري بنجاح</p>
+<h2 id="finalScore">0 من 100</h2>
+<p id="message"></p>
+</div>
+<div class="actions" style="justify-content:center"><button class="primary" onclick="restart()">إعادة اللعب</button><button class="secondary" onclick="window.print()">طباعة الشهادة</button></div>
+</section>
+</main>
+<script>
+const qs=[
+{q:"لدى سارة x ملصقًا، ثم حصلت على 5 ملصقات إضافية. أي عبارة تمثل العدد الجديد؟",a:["x + 5","x - 5","5 - x","5x"],c:0,e:"نضيف 5 إلى العدد الأصلي x، لذلك العبارة هي x + 5."},
+{q:"كان مع خالد y ريالًا، واشترى قلمًا بسعر 3 ريالات. أي عبارة تمثل ما تبقى معه؟",a:["y + 3","3 - y","y - 3","3y"],c:2,e:"نطرح ثمن القلم من المبلغ الأصلي: y - 3."},
+{q:"مجموع طولين a و b يكتب على الصورة:",a:["a - b","a + b","ab","b - a"],c:1,e:"كلمة مجموع تعني الجمع، إذن a + b."},
+{q:"إذا كان عدد الكتب n، وأضيفت إليه 8 كتب، فالعبارة المناسبة هي:",a:["n - 8","8 - n","n + 8","8n"],c:2,e:"إضافة 8 إلى n تعني n + 8."},
+{q:"مع ليلى مبلغ m، وأعطت أختها 6 ريالات. ما العبارة التي تمثل المبلغ المتبقي؟",a:["m + 6","m - 6","6m","6 - m"],c:1,e:"إعطاء 6 ريالات يعني طرحها من المبلغ m."},
+{q:"أي إشارة نستخدم للتعبير عن كلمة «زاد بمقدار 4»؟",a:["+","−","×","÷"],c:0,e:"كلمة زاد تدل على عملية الجمع."},
+{q:"أي عبارة تمثل الفرق بين العددين p و 7؟",a:["p + 7","7p","p - 7","7 - p"],c:2,e:"الفرق بين p و7 يكتب p - 7."},
+{q:"في صندوق x كرة، أضفنا إليه y كرة. أي عبارة تمثل العدد الكلي؟",a:["x - y","x + y","xy","y - x"],c:1,e:"العدد الكلي ينتج عن جمع الكرتين: x + y."},
+{q:"كان طول شريط r سم، وقُصّ منه 2 سم. ما طول الجزء المتبقي؟",a:["r + 2","2 - r","2r","r - 2"],c:3,e:"نطرح الجزء المقطوع من الطول الأصلي: r - 2."},
+{q:"اختاري العبارة التي تعني «عدد أكبر من k بمقدار 9»:",a:["k - 9","9 - k","k + 9","9k"],c:2,e:"أكبر بمقدار 9 تعني إضافة 9 إلى k."}
+];
+let i=0,score=0,answered=false;
+function begin(){document.getElementById('start').classList.add('hidden');document.getElementById('game').classList.remove('hidden');render()}
+function render(){answered=false;let q=qs[i];document.getElementById('number').textContent=(i+1)+" / 10";document.getElementById('score').textContent=score;document.getElementById('stars').textContent="★".repeat(Math.floor(score/20))+"☆".repeat(5-Math.floor(score/20));document.getElementById('stage').textContent="المحطة "+(["الأولى","الثانية","الثالثة","الرابعة","الخامسة"][Math.floor(i/2)]);document.getElementById('bar').style.width=(i*10)+"%";document.getElementById('question').textContent=(i+1)+". "+q.q;let box=document.getElementById('choices');box.innerHTML="";q.a.forEach((v,j)=>{let b=document.createElement('button');b.className='choice';b.textContent=v;b.onclick=()=>answer(j);box.appendChild(b)});let f=document.getElementById('feedback');f.className='feedback';f.style.display='none';document.getElementById('next').classList.add('hidden')}
+function answer(j){if(answered)return;answered=true;let q=qs[i],buttons=[...document.querySelectorAll('.choice')],f=document.getElementById('feedback');buttons.forEach((b,k)=>{b.disabled=true;if(k===q.c)b.classList.add('correct');if(k===j&&j!==q.c)b.classList.add('wrong')});if(j===q.c){score+=10;f.textContent="أحسنتِ! إجابة صحيحة. "+q.e;f.className='feedback good'}else{f.textContent="حاولي في السؤال التالي. الإجابة الصحيحة: "+q.a[q.c]+". "+q.e;f.className='feedback bad'}f.style.display='block';document.getElementById('score').textContent=score;document.getElementById('stars').textContent="★".repeat(Math.floor(score/20))+"☆".repeat(5-Math.floor(score/20));document.getElementById('next').classList.remove('hidden');document.getElementById('next').textContent=i===9?"عرض النتيجة":"السؤال التالي"}
+function nextQ(){if(i<9){i++;render()}else{document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('bar').style.width='100%';document.getElementById('finalScore').textContent=score+" من 100";document.getElementById('message').textContent=score>=80?"أداء رائع! واصلي التميز.":score>=50?"عمل جيد! تابعي التدريب.":"بداية جميلة، حاولي مرة أخرى."}}
+function restart(){i=0;score=0;document.getElementById('result').classList.add('hidden');document.getElementById('game').classList.remove('hidden');render()}
+</script>
+</body>
+</html>
